@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"maxWidth\\\\|padding.*9px\\\\|padding: \\\\`9px\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\components\\\\Layout.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\Home.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\History.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\SchedulingCurrent.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\SchedulingFuture.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\TransferHistory.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\TransferFindCollege.tsx\" \"c:\\\\Users\\\\twong\\\\OneDrive - FTAI Aviation\\\\Desktop\\\\School\\\\IDPrototype\\\\degreeworks\\\\src\\\\pages\\\\TransferFindCourse.tsx\")"
+    ]
+  }
+}
