@@ -165,7 +165,7 @@ const TAB_CONFIGS: Record<string, { title: string; reqs: Course[]; total: number
   'ITWS Minor':   { title: 'ITWS Minor Requirements',             reqs: itwsRequirements,           total: 20 },
   'Math/Science': { title: 'Math / Science Requirements',         reqs: mathScienceRequirements,    total: 32 },
   'HASS':         { title: 'HASS Requirements',                   reqs: hassRequirements,           total: 32 },
-  'Arch':         { title: 'Architecture Requirements',           reqs: archRequirements,           total: 16 },
+  'Arch':         { title: 'Arch Requirements',           reqs: archRequirements,           total: 16 },
   'Pathway':      { title: 'HASS Pathway Requirements',           reqs: pathwayRequirements,        total: 16 },
   'Concentration':{ title: 'Concentration Requirements',          reqs: concentrationRequirements,  total: 16 },
   'Free':         { title: 'Free Electives',                      reqs: freeElectives,              total: 15 },
