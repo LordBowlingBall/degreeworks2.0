@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   futureCoursesFall2026, futureCoursesSpring2027,
   fall2026Courses as searchPoolFall, spring2027Courses,
-  type SearchCourse, type FutureCourse,
+  type SearchCourse, type FutureCourse, type Semester,
 } from '../data/mockData';
 
 const SEMESTERS = ['Fall 2026', 'Spring 2027'];
@@ -54,8 +54,9 @@ export default function SchedulingFuture() {
   const [filterChips, setFilterChips] = useState<string[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [addedCourses, setAddedCourses] = useState<FutureCourse[]>([
-    ...futureCoursesFall2026,
-  ]);
+  ...futureCoursesFall2026,
+  ...futureCoursesSpring2027,
+]);
   const [colorIdx, setColorIdx] = useState(0);
 
   const currentSem = SEMESTERS[semIdx];
@@ -63,10 +64,7 @@ export default function SchedulingFuture() {
   const pool: SearchCourse[] = isSpring ? spring2027Courses : searchPoolFall;
 
   // Courses relevant to the selected semester
-  const visibleCourses = isSpring
-    ? addedCourses.filter(c => futureCoursesSpring2027.some(b => b.code === c.code) ||
-        !futureCoursesFall2026.some(b => b.code === c.code))
-    : addedCourses.filter(c => futureCoursesFall2026.some(b => b.code === c.code));
+  const visibleCourses = addedCourses.filter(c => c.semester === currentSem);
 
   const filtered = pool.filter(c => {
     const q = search.toLowerCase();
@@ -79,29 +77,29 @@ export default function SchedulingFuture() {
   const removeChip = (ch: string) => setFilterChips(c => c.filter(x => x !== ch));
 
   const addCourse = (c: SearchCourse) => {
-    if (addedCourses.find(a => a.code === c.code)) return;
+    if (addedCourses.find(a => a.code === c.code && a.semester === currentSem)) return;    
     const color = EXTRA_COLORS[colorIdx % EXTRA_COLORS.length];
     setColorIdx(i => i + 1);
     const slots = searchCourseToSlots(c, c.section ?? '');
     setAddedCourses(prev => [...prev, {
       code: c.code, title: c.title, credits: c.credits,
-      fulfills: 'Elective', color, slots,
+      fulfills: 'Elective', color, slots, semester: currentSem as Semester,
     }]);
   };
 
-  const removeCourse = (code: string) => setAddedCourses(prev => prev.filter(c => c.code !== code));
+  const removeCourse = (code: string) =>  setAddedCourses(prev => prev.filter(c => !(c.code === code && c.semester === currentSem)));
 
   // Ensure spring base courses are present when switching to spring
-  const handleSemSwitch = (idx: number) => {
-    if (idx === 1) {
-      // Make sure spring base courses exist in addedCourses
-      setAddedCourses(prev => {
-        const missing = futureCoursesSpring2027.filter(b => !prev.find(p => p.code === b.code));
-        return [...prev, ...missing];
-      });
-    }
-    setSemIdx(idx);
-  };
+  // const handleSemSwitch = (idx: number) => {
+  //   if (idx === 1) {
+  //     // Make sure spring base courses exist in addedCourses
+  //     setAddedCourses(prev => {
+  //       const missing = futureCoursesSpring2027.filter(b => !prev.find(p => p.code === b.code));
+  //       return [...prev, ...missing];
+  //     });
+  //   }
+  //   setSemIdx(idx);
+  // };
 
   return (
     <div style={{
@@ -141,7 +139,7 @@ export default function SchedulingFuture() {
             borderRadius: 8, padding: 3, gap: 2,
           }}>
             {SEMESTERS.map((sem, i) => (
-              <button key={sem} onClick={() => handleSemSwitch(i)} style={{
+              <button key={sem} onClick={() => setSemIdx(i)} style={{
                 padding: '5px 14px', fontSize: 12, fontWeight: semIdx === i ? 600 : 400,
                 borderRadius: 6, border: 'none', cursor: 'pointer',
                 background: semIdx === i ? '#fff' : 'transparent',
@@ -253,7 +251,7 @@ export default function SchedulingFuture() {
               {filtered.map(c => {
                 const key = c.code + c.section;
                 const isExpanded = expanded === key;
-                const alreadyAdded = addedCourses.some(a => a.code === c.code);
+                const alreadyAdded = addedCourses.some(a => a.code === c.code && a.semester === currentSem);
                 return (
                   <div key={key} style={{ border: '1px solid #e5e5e5', borderRadius: 6, overflow: 'hidden', flexShrink: 0, minWidth: 0 }}>
                     <div

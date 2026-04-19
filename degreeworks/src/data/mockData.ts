@@ -300,11 +300,13 @@ export const spring2027Courses: SearchCourse[] = [
   { code: 'ECSE-4840', title: 'Intro to Machine Learning', credits: 3, description: 'A broad introduction to statistical machine learning. Topics include supervised learning: generative/discriminative learning, parametric/non-parametric learning, neural networks, support vector machines, and unsupervised learning.', section: '04-82004', professor: 'Qiang Ji', classLength: '01/20 - 05/10', seatsAvailable: '12/40', monday: '4p-5:30p', tuesday: 'N/A', wednesday: '4p-5:30p', thursday: 'N/A', friday: 'N/A' },
 ];
 
+export type Semester = 'Fall 2026' | 'Spring 2027';
+
 export interface FutureSlot {
   day: string; startHour: number; startMin: number; endHour: number; endMin: number; room: string;
 }
 export interface FutureCourse {
-  code: string; title: string; credits: number; fulfills: string; color: string; slots: FutureSlot[];
+  code: string; title: string; credits: number; fulfills: string; color: string; semester: Semester; slots: FutureSlot[];
 }
 
 export const futureCoursesFall2026: FutureCourse[] = [
@@ -314,6 +316,7 @@ export const futureCoursesFall2026: FutureCourse[] = [
       { day: 'Monday',    startHour: 10, startMin: 0, endHour: 11, endMin: 50, room: 'AE 214' },
       { day: 'Wednesday', startHour: 10, startMin: 0, endHour: 11, endMin: 50, room: 'AE 214' },
     ],
+    semester: 'Fall 2026',
   },
   {
     code: 'MATH 4040', title: 'Intro to Topology', credits: 4, fulfills: 'Major Elective', color: '#3b82f6',
@@ -321,6 +324,7 @@ export const futureCoursesFall2026: FutureCourse[] = [
       { day: 'Tuesday',  startHour: 14, startMin: 0, endHour: 15, endMin: 50, room: 'DCC 318' },
       { day: 'Thursday', startHour: 14, startMin: 0, endHour: 15, endMin: 50, room: 'DCC 318' },
     ],
+    semester: 'Fall 2026',
   },
 ];
 
@@ -331,6 +335,7 @@ export const futureCoursesSpring2027: FutureCourse[] = [
       { day: 'Monday',   startHour: 12, startMin: 0, endHour: 13, endMin: 50, room: 'Sage 3510' },
       { day: 'Thursday', startHour: 12, startMin: 0, endHour: 13, endMin: 50, room: 'Sage 3510' },
     ],
+    semester: 'Spring 2027',
   },
 ];
 
