@@ -7,6 +7,7 @@ import SchedulingFuture from './pages/SchedulingFuture';
 import TransferHistory from './pages/TransferHistory';
 import TransferFindCollege from './pages/TransferFindCollege';
 import TransferFindCourse from './pages/TransferFindCourse';
+import WhatIf from './pages/WhatIf';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/whatif" element={<WhatIf />} />
           <Route path="/scheduling" element={<Navigate to="/scheduling/current" replace />} />
           <Route path="/scheduling/current" element={<SchedulingCurrent />} />
           <Route path="/scheduling/future" element={<SchedulingFuture />} />

@@ -1,12 +1,18 @@
 import { useState, type ReactElement } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 
-// Simple inline SVG icons — consistent stroke-based style
 const Icons: Record<string, ReactElement> = {
   home: (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/>
       <path d="M9 21V12h6v9"/>
+    </svg>
+  ),
+  whatif: (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+      <line x1="12" y1="17" x2="12.01" y2="17"/>
     </svg>
   ),
   calendar: (
@@ -41,11 +47,12 @@ const Icons: Record<string, ReactElement> = {
 
 const NAV_ITEMS = [
   { label: 'Home', path: '/', icon: 'home' },
+  { label: 'What If?', path: '/whatif', icon: 'whatif' },
   {
     label: 'Scheduling', path: '/scheduling', icon: 'calendar',
     children: [
-      { label: 'Current', path: '/scheduling/current' },
-      { label: 'Future', path: '/scheduling/future' },
+      { label: 'This Semester', path: '/scheduling/current' },
+      { label: 'Plan Future', path: '/scheduling/future' },
     ],
   },
   { label: 'History', path: '/history', icon: 'clock' },
@@ -175,12 +182,14 @@ function SidebarItem({
           onClick={() => toggle(item.path)}
           style={{
             display: 'flex', alignItems: 'center', width: '100%',
-            padding: `12px 12px 12px ${indentLeft}px`,
+            padding: `10px 12px 10px ${indentLeft}px`,
             gap: 9, fontSize, fontWeight: isSectionActive ? 600 : 400,
             color: isSectionActive ? 'var(--rpi-red)' : '#333',
             background: 'none', border: 'none', cursor: 'pointer',
-            textAlign: 'left',
+            textAlign: 'left', transition: 'background 0.1s',
           }}
+          onMouseEnter={e => { e.currentTarget.style.background = '#f5f5f5'; }}
+          onMouseLeave={e => { e.currentTarget.style.background = 'none'; }}
         >
           {item.icon && (
             <span style={{ display: 'flex', alignItems: 'center', opacity: isSectionActive ? 1 : 0.55 }}>
@@ -204,15 +213,25 @@ function SidebarItem({
         <NavLink
           to={item.path}
           end={item.path === '/'}
-          style={({ isActive: navActive }: { isActive: boolean }) => ({
+          style={({ isActive }: { isActive: boolean }) => ({
             display: 'flex', alignItems: 'center',
-            padding: `12px 12px 12px ${indentLeft}px`,
-            gap: 9, fontSize, fontWeight: navActive ? 600 : 400,
-            color: navActive ? 'var(--rpi-red)' : '#333',
-            background: navActive ? 'var(--rpi-red-light)' : 'none',
-            borderRight: navActive ? '3px solid var(--rpi-red)' : 'none',
-            textDecoration: 'none',
+            padding: `10px 12px 10px ${indentLeft}px`,
+            gap: 9, fontSize, fontWeight: isActive ? 600 : 400,
+            color: isActive ? 'var(--rpi-red)' : '#333',
+            background: isActive ? 'var(--rpi-red-light)' : 'none',
+            borderRight: isActive ? '3px solid var(--rpi-red)' : 'none',
+            textDecoration: 'none', transition: 'background 0.1s',
           })}
+          onMouseEnter={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            if (!e.currentTarget.classList.contains('active')) {
+              e.currentTarget.style.background = '#f5f5f5';
+            }
+          }}
+          onMouseLeave={(e: React.MouseEvent<HTMLAnchorElement>) => {
+            if (!e.currentTarget.classList.contains('active')) {
+              e.currentTarget.style.background = 'none';
+            }
+          }}
         >
           {item.icon && (
             <span style={{ display: 'flex', alignItems: 'center', opacity: 0.55 }}>

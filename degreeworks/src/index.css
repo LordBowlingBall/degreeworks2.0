@@ -22,8 +22,10 @@ body {
 a { text-decoration: none; color: inherit; }
 button { cursor: pointer; font-family: inherit; font-size: 14px; border: none; background: none; }
 input { font-family: inherit; font-size: 14px; }
+select { font-family: inherit; font-size: 14px; }
 table { border-collapse: collapse; width: 100%; }
 
+/* Status dots */
 .status-dot {
   width: 12px;
   height: 12px;
@@ -48,6 +50,7 @@ table { border-collapse: collapse; width: 100%; }
   flex-shrink: 0;
 }
 
+/* Badges */
 .badge-inprogress {
   font-size: 11px;
   font-weight: 600;
@@ -58,9 +61,91 @@ table { border-collapse: collapse; width: 100%; }
   letter-spacing: 0.05em;
 }
 
+/* Cards */
 .card {
   background: #fff;
   border-radius: 8px;
   border: 1px solid #e5e5e5;
   padding: 20px;
+}
+
+/* Clickable rows */
+.clickable-row {
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.clickable-row:hover {
+  background: #f9f9f9 !important;
+}
+
+/* Hover lift for cards */
+.hover-lift {
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.hover-lift:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Pill/chip buttons */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1.5px solid #e0e0e0;
+  background: #fff;
+  color: #555;
+  cursor: pointer;
+  transition: border-color 0.1s, background 0.1s, color 0.1s;
+}
+.chip:hover {
+  border-color: var(--rpi-red);
+  color: var(--rpi-red);
+  background: #fce8eb;
+}
+.chip.active {
+  border-color: var(--rpi-red);
+  background: #fce8eb;
+  color: var(--rpi-red);
+}
+
+/* Primary button */
+.btn-primary {
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--rpi-red);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.1s;
+}
+.btn-primary:hover { opacity: 0.88; }
+.btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Ghost button */
+.btn-ghost {
+  padding: 7px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  background: transparent;
+  color: #555;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s;
+}
+.btn-ghost:hover {
+  background: #f5f5f5;
+  border-color: #bbb;
+}
+
+/* Table rows */
+tbody tr:hover {
+  background: #fafafa;
 }

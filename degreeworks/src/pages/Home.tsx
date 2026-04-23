@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   student,
   csRequirements, mathRequirements, itwsRequirements,
   mathScienceRequirements, hassRequirements, archRequirements,
   pathwayRequirements, concentrationRequirements, freeElectives,
-  type CourseStatus, type Course,
+  requirementOptions,
+  type CourseStatus, type Course, type CourseOption,
 } from '../data/mockData';
 
 const TABS = ['Overview', 'CS Major', 'Math Major', 'ITWS Minor', 'Math/Science', 'HASS', 'Arch', 'Pathway', 'Concentration', 'Free'];
@@ -53,22 +55,19 @@ function Legend() {
 function ProgressBar({ complete, inProgress, incomplete, total }: {
   complete: number; inProgress: number; incomplete: number; total: number;
 }) {
-  const pctComplete = (complete / total) * 100;
-  const pctIn = (inProgress / total) * 100;
-  const pctIncomplete = (incomplete / total) * 100;
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
       <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: '#f3f4f6' }}>
-        <div style={{ width: `${pctComplete}%`, background: '#22c55e' }} />
-        <div style={{ width: `${pctIn}%`, background: '#3b82f6' }} />
-        <div style={{ width: `${pctIncomplete}%`, background: '#ef4444' }} />
+        <div style={{ width: `${(complete / total) * 100}%`, background: '#22c55e' }} />
+        <div style={{ width: `${(inProgress / total) * 100}%`, background: '#3b82f6' }} />
+        <div style={{ width: `${(incomplete / total) * 100}%`, background: '#ef4444' }} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <Legend />
         <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#666' }}>
           <span><strong style={{ color: '#22c55e' }}>{complete} cr</strong> complete</span>
           <span><strong style={{ color: '#3b82f6' }}>{inProgress} cr</strong> in-progress</span>
-          <span><strong style={{ color: '#ef4444' }}>{incomplete} cr</strong> incomplete</span>
+          <span><strong style={{ color: '#ef4444' }}>{incomplete} cr</strong> remaining</span>
         </div>
       </div>
     </div>
@@ -85,6 +84,143 @@ function MiniBar({ complete, inProgress, incomplete, total }: { complete: number
   );
 }
 
+// Card for one incomplete requirement slot, showing all options that can satisfy it
+function IncompleteOptionCard({ course }: { course: Course }) {
+  const options: CourseOption[] = requirementOptions[course.code] ?? [
+    { code: course.code, title: course.title, credits: course.credits, offeredIn: 'See schedule' },
+  ];
+  const isGeneric = options.length > 1;
+
+  return (
+    <div style={{
+      border: '1px solid #fde8e8',
+      borderLeft: '4px solid #ef4444',
+      borderRadius: 8,
+      background: '#fff',
+      overflow: 'hidden',
+    }}>
+      {/* Slot header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '10px 14px', background: '#fff9f9', borderBottom: '1px solid #fde8e8',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span className="dot-incomplete" />
+          <span style={{ fontWeight: 600, fontSize: 13, color: '#b91c1c' }}>{course.code}</span>
+          <span style={{ fontSize: 13, color: '#555' }}>{course.title}</span>
+          {isGeneric && (
+            <span style={{
+              fontSize: 10, fontWeight: 600, padding: '1px 7px', borderRadius: 10,
+              background: '#fef3c7', color: '#d97706', border: '1px solid #fde68a',
+            }}>
+              CHOOSE ONE
+            </span>
+          )}
+        </div>
+        <span style={{ fontSize: 12, color: '#999' }}>{course.credits} cr required</span>
+      </div>
+
+      {/* Options */}
+      <div style={{ padding: '10px 14px', display: 'flex', flexDirection: 'column', gap: isGeneric ? 0 : 6 }}>
+        {isGeneric ? (
+          // Multiple-choice slot: show as a list of options
+          <div>
+            <div style={{ fontSize: 11, color: '#888', marginBottom: 6, fontWeight: 500 }}>
+              Any of the following will satisfy this requirement:
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {options.map((opt, i) => (
+                <div
+                  key={opt.code}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 0,
+                    padding: '7px 0',
+                    borderBottom: i < options.length - 1 ? '1px solid #f5f5f5' : 'none',
+                  }}
+                >
+                  <div style={{ width: 28, flexShrink: 0 }}>
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                      width: 18, height: 18, borderRadius: '50%',
+                      border: '1.5px solid #d1d5db', fontSize: 10, color: '#9ca3af',
+                    }}>
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ fontWeight: 500, fontSize: 13, color: '#1a1a1a' }}>{opt.code}</span>
+                    <span style={{ fontSize: 13, color: '#555', marginLeft: 8 }}>{opt.title}</span>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0, paddingLeft: 12 }}>
+                    <span style={{
+                      fontSize: 11, color: '#555', padding: '2px 8px', borderRadius: 10,
+                      background: '#f3f4f6', display: 'inline-block',
+                    }}>
+                      {opt.offeredIn}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          // Single required course: show with sections
+          options.map(opt => (
+            <div key={opt.code}>
+              {/* Meta row */}
+              <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#666', marginBottom: opt.sections ? 8 : 0, flexWrap: 'wrap' }}>
+                <span>
+                  <span style={{ color: '#aaa' }}>Offered: </span>
+                  <strong style={{ color: '#333' }}>{opt.offeredIn}</strong>
+                </span>
+                {opt.prereqs && (
+                  <span>
+                    <span style={{ color: '#aaa' }}>Prereqs: </span>
+                    <strong style={{ color: '#333' }}>{opt.prereqs}</strong>
+                  </span>
+                )}
+              </div>
+
+              {/* Sections table */}
+              {opt.sections && opt.sections.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, color: '#888', fontWeight: 500, marginBottom: 4 }}>
+                    Available sections
+                  </div>
+                  <div style={{
+                    border: '1px solid #f0f0f0', borderRadius: 6, overflow: 'hidden',
+                  }}>
+                    {opt.sections.map((sec, si) => (
+                      <div
+                        key={sec.id}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: 12,
+                          padding: '7px 12px', fontSize: 12,
+                          background: si % 2 === 0 ? '#fff' : '#fafafa',
+                          borderBottom: si < (opt.sections?.length ?? 0) - 1 ? '1px solid #f0f0f0' : 'none',
+                        }}
+                      >
+                        <span style={{
+                          fontWeight: 600, fontSize: 11, color: '#fff',
+                          background: '#6b7280', padding: '1px 6px', borderRadius: 4, flexShrink: 0,
+                        }}>
+                          Sec {sec.id}
+                        </span>
+                        <span style={{ color: '#333', flex: 1 }}>{sec.professor}</span>
+                        <span style={{ color: '#777', flexShrink: 0 }}>{sec.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 function RequirementsView({ title, requirements, totalCredits, onNavigate, navigateLabel }: {
   title: string;
   requirements: Course[];
@@ -93,15 +229,20 @@ function RequirementsView({ title, requirements, totalCredits, onNavigate, navig
   onNavigate?: () => void;
   navigateLabel?: string;
 }) {
-  const complete = requirements.filter(c => c.status === 'complete').reduce((s, c) => s + c.credits, 0);
+  const complete   = requirements.filter(c => c.status === 'complete').reduce((s, c) => s + c.credits, 0);
   const inProgress = requirements.filter(c => c.status === 'inprogress').reduce((s, c) => s + c.credits, 0);
   const incomplete = requirements.filter(c => c.status === 'incomplete').reduce((s, c) => s + c.credits, 0);
-  const applied = complete + inProgress;
-  const allComplete = incomplete === 0 && inProgress === 0;
-  const noneStarted = complete === 0 && inProgress === 0;
+  const applied    = complete + inProgress;
+
+  const doneCourses       = requirements.filter(c => c.status !== 'incomplete');
+  const incompleteCourses = requirements.filter(c => c.status === 'incomplete');
+
+  const allComplete  = incomplete === 0 && inProgress === 0;
+  const noneStarted  = complete === 0 && inProgress === 0;
 
   return (
     <div>
+      {/* Header + badge */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
         <h2 style={{ fontSize: 16, fontWeight: 600 }}>{title}</h2>
         {allComplete
@@ -112,6 +253,7 @@ function RequirementsView({ title, requirements, totalCredits, onNavigate, navig
         }
       </div>
 
+      {/* Progress bar */}
       <div style={{ marginBottom: 20 }}>
         <ProgressBar complete={complete} inProgress={inProgress} incomplete={incomplete} total={totalCredits} />
         <div style={{ fontSize: 13, color: '#555', marginTop: 6 }}>
@@ -119,27 +261,55 @@ function RequirementsView({ title, requirements, totalCredits, onNavigate, navig
         </div>
       </div>
 
-      <table>
-        <thead>
-          <tr style={{ borderBottom: '1px solid #e5e5e5' }}>
-            {['Status', 'Course Code', 'Title', 'Grade', 'Credits', 'Term'].map(h => (
-              <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, fontSize: 13 }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {requirements.map(c => (
-            <tr key={c.code} style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '10px 12px' }}><StatusDot status={c.status} /></td>
-              <td style={{ padding: '10px 12px', fontWeight: 500 }}>{c.code}</td>
-              <td style={{ padding: '10px 12px' }}>{c.title}</td>
-              <td style={{ padding: '10px 12px', color: '#555' }}>{c.grade || '-'}</td>
-              <td style={{ padding: '10px 12px' }}>{c.credits}</td>
-              <td style={{ padding: '10px 12px', color: '#555' }}>{c.term || '-'}</td>
+      {/* Completed / In-Progress table */}
+      {doneCourses.length > 0 && (
+        <table style={{ marginBottom: incompleteCourses.length ? 24 : 0 }}>
+          <thead>
+            <tr style={{ borderBottom: '1px solid #e5e5e5' }}>
+              {['Status', 'Course Code', 'Title', 'Grade', 'Credits', 'Term'].map(h => (
+                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', fontWeight: 600, fontSize: 13 }}>{h}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {doneCourses.map(c => (
+              <tr key={c.code} style={{ borderBottom: '1px solid #f0f0f0' }}>
+                <td style={{ padding: '10px 12px' }}><StatusDot status={c.status} /></td>
+                <td style={{ padding: '10px 12px', fontWeight: 500 }}>{c.code}</td>
+                <td style={{ padding: '10px 12px' }}>{c.title}</td>
+                <td style={{ padding: '10px 12px', color: '#555' }}>{c.grade || '—'}</td>
+                <td style={{ padding: '10px 12px' }}>{c.credits}</td>
+                <td style={{ padding: '10px 12px', color: '#555' }}>{c.term || '—'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Incomplete requirements — options view */}
+      {incompleteCourses.length > 0 && (
+        <div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            marginBottom: 12,
+          }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#b91c1c' }}>
+              Remaining Requirements
+            </span>
+            <span style={{
+              fontSize: 11, background: '#fee2e2', color: '#b91c1c',
+              padding: '1px 8px', borderRadius: 10, fontWeight: 500,
+            }}>
+              {incompleteCourses.length} course{incompleteCourses.length !== 1 ? 's' : ''} · {incomplete} cr
+            </span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {incompleteCourses.map(c => (
+              <IncompleteOptionCard key={c.code} course={c} />
+            ))}
+          </div>
+        </div>
+      )}
 
       {onNavigate && navigateLabel && (
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 20 }}>
@@ -148,8 +318,10 @@ function RequirementsView({ title, requirements, totalCredits, onNavigate, navig
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               border: '1px solid #ddd', borderRadius: 6, padding: '8px 16px',
-              fontWeight: 500, color: '#333', fontSize: 13,
+              fontWeight: 500, color: '#333', fontSize: 13, cursor: 'pointer',
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#f9f9f9'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
           >
             {navigateLabel} ›
           </button>
@@ -160,26 +332,27 @@ function RequirementsView({ title, requirements, totalCredits, onNavigate, navig
 }
 
 const TAB_CONFIGS: Record<string, { title: string; reqs: Course[]; total: number; navigate?: string }> = {
-  'CS Major':     { title: 'Computer Science Major Requirements', reqs: csRequirements,            total: 28 },
-  'Math Major':   { title: 'Mathematics Major Requirements',      reqs: mathRequirements,           total: 24 },
-  'ITWS Minor':   { title: 'ITWS Minor Requirements',             reqs: itwsRequirements,           total: 20 },
-  'Math/Science': { title: 'Math / Science Requirements',         reqs: mathScienceRequirements,    total: 32 },
-  'HASS':         { title: 'HASS Requirements',                   reqs: hassRequirements,           total: 32 },
-  'Arch':         { title: 'Architecture Requirements',           reqs: archRequirements,           total: 16 },
-  'Pathway':      { title: 'HASS Pathway Requirements',           reqs: pathwayRequirements,        total: 16 },
-  'Concentration':{ title: 'Concentration Requirements',          reqs: concentrationRequirements,  total: 16 },
-  'Free':         { title: 'Free Electives',                      reqs: freeElectives,              total: 15 },
+  'CS Major':     { title: 'Computer Science Major Requirements', reqs: csRequirements,           total: 28 },
+  'Math Major':   { title: 'Mathematics Major Requirements',      reqs: mathRequirements,          total: 24 },
+  'ITWS Minor':   { title: 'ITWS Minor Requirements',             reqs: itwsRequirements,          total: 20 },
+  'Math/Science': { title: 'Math / Science Requirements',         reqs: mathScienceRequirements,   total: 32 },
+  'HASS':         { title: 'HASS Requirements',                   reqs: hassRequirements,          total: 32 },
+  'Arch':         { title: 'Architecture Requirements',           reqs: archRequirements,          total: 16 },
+  'Pathway':      { title: 'HASS Pathway Requirements',           reqs: pathwayRequirements,       total: 16 },
+  'Concentration':{ title: 'Concentration Requirements',          reqs: concentrationRequirements, total: 16 },
+  'Free':         { title: 'Free Electives',                      reqs: freeElectives,             total: 15 },
 };
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('Overview');
+  const navigate = useNavigate();
 
-  const creditsPct = Math.round((student.credits.earned / student.credits.required) * 100);
-  const inProgressCredits = 12;
-  const remaining = student.credits.required - student.credits.earned - inProgressCredits;
-  const earnedPct = (student.credits.earned / student.credits.required) * 100;
-  const inProgressPct = (inProgressCredits / student.credits.required) * 100;
-  const remainingPct = (remaining / student.credits.required) * 100;
+  const creditsPct     = Math.round((student.credits.earned / student.credits.required) * 100);
+  const inProgressCredits = 16;
+  const remaining      = student.credits.required - student.credits.earned - inProgressCredits;
+  const earnedPct      = (student.credits.earned / student.credits.required) * 100;
+  const inProgressPct  = (inProgressCredits / student.credits.required) * 100;
+  const remainingPct   = (remaining / student.credits.required) * 100;
 
   const programCards = [
     { tab: 'CS Major',   label: 'Computer Science Major',              degree: 'BS Computer Science', type: 'Major', reqs: csRequirements,  total: 28 },
@@ -191,7 +364,7 @@ export default function Home() {
 
   return (
     <div style={{ width: '100%' }}>
-      {/* Tabs */}
+      {/* Tab bar */}
       <div style={{
         display: 'flex', gap: 0, background: '#fff',
         borderRadius: '8px 8px 0 0', borderBottom: '1px solid #e5e5e5',
@@ -210,6 +383,8 @@ export default function Home() {
                 background: 'none', border: 'none', cursor: 'pointer',
                 display: 'flex', alignItems: 'center', gap: 5,
               }}
+              onMouseEnter={e => { e.currentTarget.style.color = '#1a1a1a'; }}
+              onMouseLeave={e => { e.currentTarget.style.color = activeTab === tab ? '#1a1a1a' : '#555'; }}
             >
               {meta && (
                 <span style={{
@@ -230,6 +405,8 @@ export default function Home() {
         {/* ── Overview ── */}
         {activeTab === 'Overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+
+            {/* Degree overview card */}
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Degree Overview</h2>
               <div style={{ display: 'flex', border: '1px solid #e5e5e5', borderRadius: 8, overflow: 'hidden' }}>
@@ -250,22 +427,41 @@ export default function Home() {
                   <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>GPA</div>
                   <div style={{ fontWeight: 700, fontSize: 28 }}>{student.gpa}</div>
                 </div>
-                <div style={{ flex: 2, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>Advisor</div>
-                  <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 10 }}>{student.advisor.name}</div>
-                  <button style={{
-                    display: 'flex', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
-                    border: '1px solid #ddd', borderRadius: 6, padding: '6px 14px',
-                    color: 'var(--rpi-red)', fontWeight: 500, fontSize: 13,
-                  }}>
+                <div style={{ flex: 2, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Advisor</div>
+                  <div style={{ fontWeight: 600, fontSize: 15 }}>{student.advisor.name}</div>
+                  <button
+                    style={{
+                      display: 'flex', alignItems: 'center', gap: 6, alignSelf: 'flex-start',
+                      border: '1px solid #ddd', borderRadius: 6, padding: '6px 14px',
+                      color: 'var(--rpi-red)', fontWeight: 500, fontSize: 13, cursor: 'pointer',
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = '#fce8eb'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                  >
                     ✉ Message
                   </button>
                 </div>
               </div>
             </div>
 
+            {/* Programs of Study */}
             <div>
-              <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Programs of Study</h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                <h2 style={{ fontSize: 16, fontWeight: 600 }}>Programs of Study</h2>
+                <button
+                  onClick={() => navigate('/whatif')}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6,
+                    border: '1px solid #ddd', borderRadius: 6, padding: '6px 14px',
+                    color: '#555', fontWeight: 500, fontSize: 13, cursor: 'pointer',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#f9f9f9'; e.currentTarget.style.borderColor = '#aaa'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = '#ddd'; }}
+                >
+                  ✦ What If I Changed My Major?
+                </button>
+              </div>
               <div style={{ display: 'flex', gap: 12 }}>
                 {programCards.map(p => {
                   const done = p.reqs.filter(c => c.status === 'complete').reduce((s, c) => s + c.credits, 0);
@@ -279,9 +475,10 @@ export default function Home() {
                       style={{
                         flex: 1, border: '1px solid #e5e5e5', borderRadius: 8,
                         padding: 16, cursor: 'pointer', borderTop: '3px solid #3b82f6',
+                        transition: 'box-shadow 0.15s',
                       }}
-                      onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)')}
-                      onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+                      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.1)'; }}
+                      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}
                     >
                       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 6 }}>
                         <span style={{
@@ -299,12 +496,18 @@ export default function Home() {
                       <div style={{ fontSize: 12, color: '#666', marginTop: 6 }}>
                         <strong>{done + inp}</strong> / {p.total} cr applied ({pct}%)
                       </div>
+                      {inc > 0 && (
+                        <div style={{ fontSize: 11, color: '#ef4444', marginTop: 4 }}>
+                          {p.reqs.filter(c => c.status === 'incomplete').length} courses remaining — click to see options
+                        </div>
+                      )}
                     </div>
                   );
                 })}
               </div>
             </div>
 
+            {/* Student Profile */}
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Student Profile</h2>
               <div style={{ border: '1px solid #e5e5e5', borderRadius: 8, overflow: 'hidden' }}>
@@ -344,7 +547,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* ── All requirement tabs ── */}
+        {/* ── Requirement tabs ── */}
         {cfg && (
           <RequirementsView
             title={cfg.title}
