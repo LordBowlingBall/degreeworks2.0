@@ -32,7 +32,7 @@ function StatusDot({ status }: { status: CourseStatus }) {
 const STATUS_LEGEND: { color: string; label: string; empty?: boolean }[] = [
   { color: '#22c55e', label: 'Complete' },
   { color: '#3b82f6', label: 'In-progress' },
-  { color: '#ef4444', label: 'Incomplete', empty: true },
+  { color: '#9ca3af', label: 'Incomplete', empty: true },
 ];
 
 function Legend() {
@@ -60,14 +60,14 @@ function ProgressBar({ complete, inProgress, incomplete, total }: {
       <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: '#f3f4f6' }}>
         <div style={{ width: `${(complete / total) * 100}%`, background: '#22c55e' }} />
         <div style={{ width: `${(inProgress / total) * 100}%`, background: '#3b82f6' }} />
-        <div style={{ width: `${(incomplete / total) * 100}%`, background: '#ef4444' }} />
+        <div style={{ width: `${(incomplete / total) * 100}%`, background: '#d1d5db' }} />
       </div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
         <Legend />
         <div style={{ display: 'flex', gap: 16, fontSize: 12, color: '#666' }}>
           <span><strong style={{ color: '#22c55e' }}>{complete} cr</strong> complete</span>
           <span><strong style={{ color: '#3b82f6' }}>{inProgress} cr</strong> in-progress</span>
-          <span><strong style={{ color: '#ef4444' }}>{incomplete} cr</strong> remaining</span>
+          <span><strong style={{ color: '#9ca3af' }}>{incomplete} cr</strong> remaining</span>
         </div>
       </div>
     </div>
@@ -79,7 +79,7 @@ function MiniBar({ complete, inProgress, incomplete, total }: { complete: number
     <div style={{ display: 'flex', height: 6, borderRadius: 3, overflow: 'hidden', background: '#f3f4f6' }}>
       <div style={{ width: `${(complete / total) * 100}%`, background: '#22c55e' }} />
       <div style={{ width: `${(inProgress / total) * 100}%`, background: '#3b82f6' }} />
-      <div style={{ width: `${(incomplete / total) * 100}%`, background: '#ef4444' }} />
+      <div style={{ width: `${(incomplete / total) * 100}%`, background: '#d1d5db' }} />
     </div>
   );
 }
@@ -406,6 +406,7 @@ export default function Home() {
         {activeTab === 'Overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
 
+
             {/* Degree overview card */}
             <div>
               <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 12 }}>Degree Overview</h2>
@@ -419,13 +420,36 @@ export default function Home() {
                   <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: '#f3f4f6', marginBottom: 8 }}>
                     <div style={{ width: `${earnedPct}%`, background: '#22c55e' }} />
                     <div style={{ width: `${inProgressPct}%`, background: '#3b82f6' }} />
-                    <div style={{ width: `${remainingPct}%`, background: '#ef4444' }} />
+                    <div style={{ width: `${remainingPct}%`, background: '#d1d5db' }} />
                   </div>
                   <Legend />
                 </div>
                 <div style={{ flex: 1, padding: 16, borderRight: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                   <div style={{ fontSize: 12, color: '#666', marginBottom: 4 }}>GPA</div>
                   <div style={{ fontWeight: 700, fontSize: 28 }}>{student.gpa}</div>
+                </div>
+                <div style={{ flex: 1, padding: 16, borderRight: '1px solid #e5e5e5', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                  <div style={{ fontSize: 12, color: '#666', marginBottom: 6 }}>Year</div>
+                  <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 8 }}>{student.classYear}</div>
+                  {(() => {
+                    const CLASS_YEARS = ['Freshman', 'Sophomore', 'Junior', 'Senior'];
+                    const yearIndex = CLASS_YEARS.indexOf(student.classYear);
+                    return (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                        {CLASS_YEARS.map((y, i) => (
+                          <div key={y} style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                            <div style={{
+                              width: 7, height: 7, borderRadius: '50%',
+                              background: i < yearIndex ? '#22c55e' : i === yearIndex ? '#C8102E' : '#e5e5e5',
+                            }} title={y} />
+                            {i < CLASS_YEARS.length - 1 && (
+                              <div style={{ width: 12, height: 2, borderRadius: 1, background: i < yearIndex ? '#22c55e' : '#e5e5e5' }} />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <div style={{ flex: 2, padding: 16, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: 8 }}>
                   <div style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Advisor</div>
@@ -534,7 +558,7 @@ export default function Home() {
                   <div style={{ flex: 1, padding: 16, borderRight: '1px solid #e5e5e5' }}>
                     <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Status</div>
                     <div style={{ fontSize: 13 }}><strong>Level:</strong> {student.level}</div>
-                    <div style={{ fontSize: 13 }}><strong>Class:</strong> {student.classYear}</div>
+                    <div style={{ fontSize: 13 }}><strong>Class:</strong> {student.classYear} (3rd Year)</div>
                   </div>
                   <div style={{ flex: 2, padding: 16 }}>
                     <div style={{ fontSize: 12, color: '#888', marginBottom: 8 }}>Support</div>

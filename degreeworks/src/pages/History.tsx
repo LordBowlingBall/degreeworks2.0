@@ -16,10 +16,10 @@ function getGpaColor(gpa: number): string {
 
 // Group semesters into academic years (Fall + Spring pairs)
 const YEAR_GROUPS = [
-  { label: 'Year 1 (2023–2024)', semesters: ['fall2023', 'spring2024'] },
-  { label: 'Year 2 (2024–2025)', semesters: ['fall2024', 'spring2025'] },
-  { label: 'Year 3 (2025–2026)', semesters: ['fall2025', 'spring2026'] },
-  { label: 'Year 4 (2026–2027)', semesters: ['fall2026', 'spring2027'] },
+  { label: 'Freshman Year', years: '2023–2024', semesters: ['fall2023', 'spring2024'] },
+  { label: 'Sophomore Year', years: '2024–2025', semesters: ['fall2024', 'spring2025'] },
+  { label: 'Junior Year', years: '2025–2026', semesters: ['fall2025', 'spring2026'] },
+  { label: 'Senior Year', years: '2026–2027', semesters: ['fall2026', 'spring2027'] },
 ];
 
 const REQ_COLORS: Record<string, string> = {
@@ -123,10 +123,15 @@ function SemesterCard({ semId }: { semId: string }) {
             <span style={{ fontWeight: 500, color: '#333', minWidth: 0, flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {c.code}
             </span>
-            <span style={{ color: c.grade === '—' ? '#ccc' : '#555', fontWeight: 500, fontSize: 11, flexShrink: 0 }}>
-              {c.grade}
-            </span>
-            <span style={{ color: '#888', fontSize: 11, flexShrink: 0 }}>{c.credits}cr</span>
+            <div style={{ flex: '0 0 36px', display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+              <span style={{ color: c.grade === '—' ? '#ccc' : '#555', fontWeight: 600, fontSize: 11, width: 14, textAlign: 'center' }}>
+                {c.grade === '—' ? '—' : c.grade[0]}
+              </span>
+              <span style={{ color: c.grade === '—' ? '#ccc' : '#555', fontWeight: 600, fontSize: 11, width: 10, textAlign: 'left' }}>
+                {c.grade !== '—' && c.grade.length > 1 ? c.grade[1] : ''}
+              </span>
+            </div>
+            <span style={{ color: '#888', fontSize: 11, flex: '0 0 26px', textAlign: 'right' }}>{c.credits}cr</span>
           </div>
         ))}
         {courses.length === 0 && (
@@ -304,11 +309,13 @@ export default function History() {
             {YEAR_GROUPS.map(year => (
               <div key={year.label}>
                 <div style={{
-                  fontSize: 12, fontWeight: 700, color: '#888',
-                  textTransform: 'uppercase', letterSpacing: '0.06em',
+                  display: 'flex', alignItems: 'baseline', gap: 8,
                   marginBottom: 10, paddingBottom: 6, borderBottom: '1px solid #f0f0f0',
                 }}>
-                  {year.label}
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#374151', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                    {year.label}
+                  </span>
+                  <span style={{ fontSize: 11, color: '#aaa', fontWeight: 400 }}>{year.years}</span>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
                   {year.semesters.map(semId => (
@@ -321,7 +328,7 @@ export default function History() {
 
           {/* Future planned courses note */}
           <div style={{ marginTop: 16, padding: '12px 16px', background: '#f9f9f9', borderRadius: 8, border: '1px solid #e5e5e5', fontSize: 12, color: '#666' }}>
-            <strong>Year 4 courses</strong> reflect your current planned schedule. You can modify them in{' '}
+            <strong>Senior Year courses</strong> reflect your current planned schedule. You can modify them in{' '}
             <a href="/scheduling/future" style={{ color: 'var(--rpi-red)', textDecoration: 'none' }}>Future Scheduling</a>.
             Currently planned: {futureCoursesFall2026.length + futureCoursesSpring2027.length} courses across Fall 2026 and Spring 2027.
           </div>

@@ -1,5 +1,6 @@
 import { useState, type ReactElement } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import rpiLogo from '../assets/image.png';
 
 const Icons: Record<string, ReactElement> = {
   home: (
@@ -94,14 +95,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
       }}>
         <div style={{
-          width: SIDEBAR_WIDTH, fontWeight: 800,
-          fontSize: 22, fontFamily: 'Georgia, serif',
+          width: SIDEBAR_WIDTH,
           borderRight: '1px solid #e5e5e5',
-          padding: '0 16px', height: '100%',
-          display: 'flex', alignItems: 'center',
+          padding: '0 24px', height: '100%',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
           flexShrink: 0,
         }}>
-          <span style={{ borderBottom: '3px solid #1a1a1a', paddingBottom: 1 }}>RPI</span>
+          <img src={rpiLogo} alt="RPI" style={{ height: 30, width: 'auto', maxWidth: '100%', filter: 'brightness(0)' }} />
         </div>
         <span style={{ fontWeight: 600, fontSize: 18, flex: 1, paddingLeft: 20 }}>DegreeWorks 2.0</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#555', paddingRight: 20 }}>

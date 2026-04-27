@@ -142,6 +142,13 @@ export default function SchedulingFuture() {
     setActiveScheduleId(newId);
   };
 
+  const deleteSchedule = (id: string) => {
+    if (schedules.length <= 1) return;
+    const remaining = schedules.filter(s => s.id !== id);
+    setSchedules(remaining);
+    if (activeScheduleId === id) setActiveScheduleId(remaining[remaining.length - 1].id);
+  };
+
   const totalCredits = semCourses.reduce((s, c) => s + c.credits, 0);
 
   const isAdded = (code: string, secId: string) =>
@@ -163,19 +170,41 @@ export default function SchedulingFuture() {
         <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
           <span style={{ fontSize: 12, color: '#888', marginRight: 10, fontWeight: 500 }}>SCHEDULES</span>
           {schedules.map(s => (
-            <button
+            <div
               key={s.id}
-              onClick={() => setActiveScheduleId(s.id)}
               style={{
-                padding: '12px 16px', fontSize: 13,
-                fontWeight: activeScheduleId === s.id ? 600 : 400,
-                color: activeScheduleId === s.id ? '#1a1a1a' : '#666',
+                display: 'flex', alignItems: 'center',
                 borderBottom: activeScheduleId === s.id ? '2px solid var(--rpi-red)' : '2px solid transparent',
-                background: 'none', border: 'none', cursor: 'pointer',
               }}
             >
-              {s.name}
-            </button>
+              <button
+                onClick={() => setActiveScheduleId(s.id)}
+                style={{
+                  padding: '12px 12px 12px 16px', fontSize: 13,
+                  fontWeight: activeScheduleId === s.id ? 600 : 400,
+                  color: activeScheduleId === s.id ? '#1a1a1a' : '#666',
+                  background: 'none', border: 'none', cursor: 'pointer',
+                }}
+              >
+                {s.name}
+              </button>
+              {schedules.length > 1 && (
+                <button
+                  onClick={() => deleteSchedule(s.id)}
+                  title="Delete schedule"
+                  style={{
+                    width: 18, height: 18, borderRadius: '50%', border: 'none',
+                    background: 'transparent', color: '#bbb', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 12, padding: 0, marginRight: 6, lineHeight: 1,
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#bbb'; }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           ))}
           {schedules.length < 5 && (
             <button
